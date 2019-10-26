@@ -1,0 +1,394 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>Mainyf</title>
+  
+  <subtitle>记录踩过的坑</subtitle>
+  <link href="/atom.xml" rel="self"/>
+  
+  <link href="https://Mainyf.github.io/"/>
+  <updated>2019-02-23T16:10:30.398Z</updated>
+  <id>https://Mainyf.github.io/</id>
+  
+  <author>
+    <name>Mainyf</name>
+    
+  </author>
+  
+  <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Minecraft-2DDrawing-tutorial (3)</title>
+    <link href="https://Mainyf.github.io/2019/02/23/1/"/>
+    <id>https://Mainyf.github.io/2019/02/23/1/</id>
+    <published>2019-02-23T14:35:58.000Z</published>
+    <updated>2019-02-23T16:10:30.398Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="HUD-是什么"><a href="#HUD-是什么" class="headerlink" title="HUD 是什么?"></a>HUD 是什么?</h2><p>可以参考 <a href="https://minecraft-zh.gamepedia.com/index.php?title=%E5%B9%B3%E8%A7%86%E6%98%BE%E7%A4%BA%E5%99%A8&amp;variant=zh" target="_blank" rel="noopener">wiki</a>, 我个人理解可能是与UI相似, 展示给用户的界面。<br>就像平时看到的血条、经验条等等。<br>Forge用 GuiIngameForge 类 替换了原版的 GuiIngame 类，为我们提供了一些事件，一起来看看。</p><hr><h2 id="怎么写自己的HUD"><a href="#怎么写自己的HUD" class="headerlink" title="怎么写自己的HUD?"></a>怎么写自己的HUD?</h2><p>可以监听 RenderGameOverlayEvent 事件，这样就可以插手HUD的渲染，阻止或者渲染你自己的HUD。</p><p>RenderGameOverlayEvent类有五个内部类:</p><p><img src="https://upload.cc/i1/2019/02/23/SsVa2i.png" alt=""></p><p>我们可以监听Pre、Post来在渲染前后做操作。</p><p>如果你想阻止原版的某个HUD渲染，那么你可能需要知道它们的类型:</p><p><img src="https://upload.cc/i1/2019/02/23/KhZlWb.png" alt=""></p><table><thead><tr><th>类型</th><th>描述</th></tr></thead><tbody><tr><td>All</td><td>所有的</td></tr><tr><td>HELMET</td><td>头盔(列如南瓜头)</td></tr><tr><td>PORTAL</td><td>传送门</td></tr><tr><td>CROSSHAIRS</td><td>光标</td></tr><tr><td>BOSSHEALTH</td><td>Boss血条</td></tr><tr><td>BOSSINFO</td><td>渲染血条上的文字信息，但这貌似是无法阻止的，你可以通过监听BOSSHEALTH来阻止，这会在BOSSINFO之前post</td></tr><tr><td>ARMOR</td><td>防御值</td></tr><tr><td>HEALTH</td><td>生命值</td></tr><tr><td>FOOD</td><td>饱食度</td></tr><tr><td>AIR</td><td>氧气值</td></tr><tr><td>HOTBAR</td><td>快捷物品栏</td></tr><tr><td>EXPERIENCE</td><td>经验</td></tr><tr><td>TEXT</td><td>文字</td></tr><tr><td>HEALTHMOUNT</td><td>坐骑的生命值</td></tr><tr><td>JUMPBAR</td><td>坐骑的跳跃条</td></tr><tr><td>CHAT</td><td>聊天文字信息</td></tr><tr><td>PLAYER_LIST</td><td>Tab键的玩家列表</td></tr><tr><td>DEBUG</td><td>debug 信息</td></tr><tr><td>POTION_ICONS</td><td>药水的图标</td></tr><tr><td>SUBTITLES</td><td>1.11新增的右下角提示</td></tr><tr><td>FPS_GRAPH</td><td>Lagometer信息 <img src="https://upload.cc/i1/2019/02/23/o41zhm.png" alt=""></td></tr><tr><td>VIGNETTE</td><td>unknown</td></tr></tbody></table><p>现在试着在屏幕上写一行字看看。</p><p><img src="https://upload.cc/i1/2019/02/23/PZE87O.png" alt=""></p><p>看看效果:<br><img src="https://upload.cc/i1/2019/02/23/kAm7ZD.png" alt=""></p><p>不过这么做的话，有点糟糕，现在切换到生存模式:<br><img src="https://upload.cc/i1/2019/02/23/JU2G9B.png" alt=""></p><p>可以看到原来的材质都变成了字体的纹理上，这个时候需要手动绑定回去，原来的纹理是Gui类的静态变量ICONS，这是一张雪碧图，里面有游戏中需要用到的大部分图标:</p><p><img src="https://upload.cc/i1/2019/02/23/58cF9x.png" alt=""></p><p>再看看效果:<br><img src="https://upload.cc/i1/2019/02/23/kXu53q.png" alt=""></p><hr><h2 id="MC的颜色解析"><a href="#MC的颜色解析" class="headerlink" title="MC的颜色解析"></a>MC的颜色解析</h2><p>例如这里的<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">0xFFFFFFFF</span><br></pre></td></tr></table></figure></p><p>是一个十六进制的颜色代码，组成部分由:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">0x    FF((AA)alpha)    FFFFFF(RRGGBB)</span><br></pre></td></tr></table></figure></p><p>例: 0xaaFFFFFF<br>即为设置alpha值为0.666…(0xaa / 255)</p><hr><h2 id="简单的HUD信息展示例子"><a href="#简单的HUD信息展示例子" class="headerlink" title="简单的HUD信息展示例子"></a>简单的HUD信息展示例子</h2><p>部分代码:<br><img src="https://upload.cc/i1/2019/02/23/BsEbLn.png" alt=""><br><img src="https://upload.cc/i1/2019/02/23/YDWvTQ.png" alt=""><br><img src="https://upload.cc/i1/2019/02/23/ODoYMt.png" alt=""><br><img src="https://upload.cc/i1/2019/02/23/dw0KaZ.png" alt=""></p><p><a href="https://github.com/Mainyf/drawTutorial" target="_blank" rel="noopener">source</a></p><p>效果:<br><img src="https://upload.cc/i1/2019/02/23/KBmqFr.png" alt=""></p>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;h2 id=&quot;HUD-是什么&quot;&gt;&lt;a href=&quot;#HUD-是什么&quot; class=&quot;headerlink&quot; title=&quot;HUD 是什么?&quot;&gt;&lt;/a&gt;HUD 是什么?&lt;/h2&gt;&lt;p&gt;可以参考 &lt;a href=&quot;https://minecraft-zh.gamepedia.com
+      
+    
+    </summary>
+    
+      <category term="Java" scheme="https://Mainyf.github.io/categories/Java/"/>
+    
+    
+      <category term="Java" scheme="https://Mainyf.github.io/tags/Java/"/>
+    
+      <category term="opengl" scheme="https://Mainyf.github.io/tags/opengl/"/>
+    
+      <category term="minecraft" scheme="https://Mainyf.github.io/tags/minecraft/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Minecraft 2DDrawing tutorial (2)</title>
+    <link href="https://Mainyf.github.io/2019/01/07/1/"/>
+    <id>https://Mainyf.github.io/2019/01/07/1/</id>
+    <published>2019-01-07T12:40:00.000Z</published>
+    <updated>2019-01-07T12:40:18.324Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="2D材质绘制"><a href="#2D材质绘制" class="headerlink" title="2D材质绘制"></a>2D材质绘制</h2><p>首先你需要一个材质图片，这里找一个256 * 256的占位图来用。<br>(注: 在1.11以上，资源文件名需要全小写，用”_”分割，否则你的资源将无法被读取)<br>(占位图地址: <a href="https://via.placeholder.com/256" target="_blank" rel="noopener">https://via.placeholder.com/256</a>)</p><p><img src="https://upload.cc/i1/2019/01/07/lpDoq4.png" alt=""></p><p>这里我把图片命名为placeholder_image,如果您的名字与我不一样，请注意全小写。<br>这里按照要求建立路径时需要以assets/&#60;domain&#62;/&#60;ctx&#62;/&#60;path&#62;，这里可以参考minecraft本身的路径</p><p><img src="https://upload.cc/i1/2019/01/07/aMNAob.png" alt=""></p><p>如果你想了解更多有关资源路径的信息，请看<a href="https://mcforge-ko.readthedocs.io/zh/latest/concepts/resources/" target="_blank" rel="noopener">这里</a></p><hr><p><img src="https://upload.cc/i1/2019/01/07/fLEvRn.png" alt=""></p><p>首先照例覆盖drawScreen，然后我们需要有一个ResourceLocation，填上domain(MODID)和资源路径，就得到了一个资源文件的”Location”。<br>在绘制之前，我们需要去绑定这个材质，然后使用drawTexturedModalRect来绘制刚刚的材质。</p><p>这里的x,y是开始绘制的左上角位置:</p><p><img src="https://upload.cc/i1/2019/01/07/U8RBlb.png" alt=""></p><p>这里的textureX,textureY是纹理绘制的左上角位置:</p><p><img src="https://upload.cc/i1/2019/01/07/nwZBdG.png" alt=""></p><p>width和height应该不需要解释了, 效果: </p><p><img src="https://upload.cc/i1/2019/01/07/7vfD6B.png" alt=""></p><p>drawTexturedModalRect只能绘制256<em>256的材质，如果想绘制高于这个马赛克分辨率的材质就得用到 drawModalRectWithCustomSizedTexture，这个方法不仅可以绘制自定义的大小，而且还也有缩放效果，下面绘制一个1000 </em> 1000的材质:<br>(材质地址: <a href="https://via.placeholder.com/1000" target="_blank" rel="noopener">https://via.placeholder.com/1000</a>)</p><p><img src="https://upload.cc/i1/2019/01/07/eQ192x.png" alt=""></p><p><img src="https://upload.cc/i1/2019/01/07/N5tBdk.png" alt=""></p><p>vWidth和vHeight就是纹理中要绘制区域的width与height。</p>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;h2 id=&quot;2D材质绘制&quot;&gt;&lt;a href=&quot;#2D材质绘制&quot; class=&quot;headerlink&quot; title=&quot;2D材质绘制&quot;&gt;&lt;/a&gt;2D材质绘制&lt;/h2&gt;&lt;p&gt;首先你需要一个材质图片，这里找一个256 * 256的占位图来用。&lt;br&gt;(注: 在1.11以上，资源文件名
+      
+    
+    </summary>
+    
+      <category term="Java" scheme="https://Mainyf.github.io/categories/Java/"/>
+    
+    
+      <category term="Java" scheme="https://Mainyf.github.io/tags/Java/"/>
+    
+      <category term="opengl" scheme="https://Mainyf.github.io/tags/opengl/"/>
+    
+      <category term="minecraft" scheme="https://Mainyf.github.io/tags/minecraft/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Minecraft 2DDrawing tutorial (1)</title>
+    <link href="https://Mainyf.github.io/2019/01/06/1/"/>
+    <id>https://Mainyf.github.io/2019/01/06/1/</id>
+    <published>2019-01-06T07:59:16.000Z</published>
+    <updated>2019-01-06T11:34:45.003Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="简述-介绍"><a href="#简述-介绍" class="headerlink" title="简述 / 介绍"></a>简述 / 介绍</h2><p>MC使用了Java的3D游戏引擎 <a href="https://www.lwjgl.org/" target="_blank" rel="noopener">LWJGL</a>，LWJGL集成了:</p><ul><li><a href="https://zh.wikipedia.org/wiki/OpenGL" target="_blank" rel="noopener">opengl</a>(图形)</li><li><a href="https://zh.wikipedia.org/wiki/OpenAL" target="_blank" rel="noopener">openal</a>(音频)</li><li><a href="https://zh.wikipedia.org/wiki/OpenCL" target="_blank" rel="noopener">opencl</a>(并行计算)</li></ul><p>绘制主要用到 OpenGL。<br>OpenGL在这里是个高性能的绘图库，有一系列函数/方法调整状态和绘制图形。</p><hr><p>这里使用的版本是Forge 1.12.2。</p><p>首先你需要一个屏幕，或者说需要一个 “画布” ，只有当你有了一个载体的时候才可以在上面进行绘制。<br>首先需要一个类，去继承GuiScreen类，这是屏幕的基类。<br>(注: 我略过了配置开发环境的步骤，这一步可以参考其他教程。)</p><p><img src="https://upload.cc/i1/2019/01/06/Hk9fNv.png" alt=""></p><p>这里我创建了一个GuiDemoScreen类，然后继承了GuiScreen，这样就得到了一个基本的屏幕。<br>那如何才能显示我们的屏幕呢? 我们可以通过监听 <strong>GuiOpenEvent</strong> 事件来把主界面屏幕替换成刚刚写的GuiDemoScreen。</p><p><img src="https://upload.cc/i1/2019/01/06/nzLImj.png" alt=""></p><p>这里监听的GuiOpenEvent在打开一个GuiScreen的时候触发，我们可以监听此事件然后去吧打开的GuiScreen替换成为我们自己的屏幕，这里我把GuiMainMenu(主菜单)替换成了自己的屏幕。</p><p><img src="https://upload.cc/i1/2019/01/06/nV0MRF.png" alt=""></p><p>现在进入游戏，之前显示的主界面也就替换成了刚刚写的GuiDemoScreen，目前还是一片空，什么都没有。</p><p>现在的屏幕还是有点单调，没有任何的控件或者说GUI，MC自带了一些GUI控件，可供使用。</p><hr><h2 id="常用控件与GuiScreen"><a href="#常用控件与GuiScreen" class="headerlink" title="常用控件与GuiScreen"></a>常用控件与GuiScreen</h2><p>如何你继承了GuiScreen，并且需要在上面添加一些GUI控件的时候，就需要覆盖其中的      <strong>initGui</strong>，此方法会在进入和调整窗口大小时被调用:</p><p><img src="https://upload.cc/i1/2019/01/06/vj7VIf.png" alt=""></p><h3 id="Button"><a href="#Button" class="headerlink" title="Button"></a>Button</h3><p>按钮，作为最常见的GUI，MC自己本身做了一个封装: <strong>net.minecraft.client.gui.GuiButton</strong></p><p><img src="https://upload.cc/i1/2019/01/06/ugfWar.png" alt=""></p><p>从GuiButton类的构造中可以看出，我们需要最少指定按钮的id, x, y轴方向以及按钮文字。</p><p>下面放置一个按钮在刚刚的DemoScreen上:</p><p><img src="https://upload.cc/i1/2019/01/06/JyT0Un.png" alt=""></p><p>这里是往buttonList中添加了一个按钮，那为什么要这么做呢？</p><p>GuiScreen类中的绘制方法为drawScreen，如果你需要绘制一些控件之外的东西，列如图片，就需要覆写这个方法，并且记住需要super调用父类GuiScreen的drawScreen，不然你在initGui中添加的button与label都不会被绘制:</p><p><img src="https://upload.cc/i1/2019/01/06/KEmRdP.png" alt=""></p><p>这里是GuiScreen的drawScreen具体实现。</p><h3 id="Label"><a href="#Label" class="headerlink" title="Label"></a>Label</h3><p>这里的Label用于绘制多行内容:</p><p><img src="https://upload.cc/i1/2019/01/06/eVbBzF.png" alt=""></p><p>这里的fontRenderer是Minecraft类的成员，用于绘制文字。<br>GuiLabel类内部维护了一个labels的列表，用于储存添加的文字，效果:</p><p><img src="https://upload.cc/i1/2019/01/06/tFaqM7.png" alt=""></p><h3 id="TextField"><a href="#TextField" class="headerlink" title="TextField"></a>TextField</h3><p>文本输入，如果你要做一个登陆的界面或者是与用户交换信息的控件，这个可能是最佳选择，<br>但是GuiScreen没有所谓的 “textFieldList” 所以可以在initGui中去初始化，然后覆写drawScreen来绘制这个TextField:</p><p><img src="https://upload.cc/i1/2019/01/06/eYwFqd.png" alt=""></p><p>这里创建了一个TextField，指定了必须的参数，设置最大输入长度为16，在覆写drawScreen后调用其中的drawTextBox去绘制这个输入框，并且你需要指定输入框被点击和输入的行为。</p><p>覆写mouseClicked并调用textField的mouseClicked传入相同参数，此方法在鼠标点击时调用，这样就做到点击时选择到这个输入框。</p><p>覆写keyTyped并调用其中的textboxKeyTyped传入相同参数，keyTyped在键盘输入时被触发，这样就可以让输入框可输入。</p><p>最后可通过其中的getText和getSelectedText获得你想要的数据:</p><p><img src="https://upload.cc/i1/2019/01/06/PWYZnU.png" alt=""></p><hr><p>项目代码: <a href="https://github.com/Mainyf/drawTutorial" target="_blank" rel="noopener">https://github.com/Mainyf/drawTutorial</a></p>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;h2 id=&quot;简述-介绍&quot;&gt;&lt;a href=&quot;#简述-介绍&quot; class=&quot;headerlink&quot; title=&quot;简述 / 介绍&quot;&gt;&lt;/a&gt;简述 / 介绍&lt;/h2&gt;&lt;p&gt;MC使用了Java的3D游戏引擎 &lt;a href=&quot;https://www.lwjgl.org/&quot; targ
+      
+    
+    </summary>
+    
+      <category term="Java" scheme="https://Mainyf.github.io/categories/Java/"/>
+    
+    
+      <category term="Java" scheme="https://Mainyf.github.io/tags/Java/"/>
+    
+      <category term="opengl" scheme="https://Mainyf.github.io/tags/opengl/"/>
+    
+      <category term="minecraft" scheme="https://Mainyf.github.io/tags/minecraft/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Snakeyaml 解析文件</title>
+    <link href="https://Mainyf.github.io/2018/11/17/1/"/>
+    <id>https://Mainyf.github.io/2018/11/17/1/</id>
+    <published>2018-11-17T15:42:41.000Z</published>
+    <updated>2018-11-18T01:28:47.138Z</updated>
+    
+    <content type="html"><![CDATA[<p>首先需要一个标准的JavaBean(无参构造, 每个成员需要有getter/setter方法)<br>例:</p><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">User</span> </span>&#123;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> age;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">User</span><span class="params">()</span> </span>&#123;&#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">User</span><span class="params">(String name, <span class="keyword">int</span> age)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.name = name;</span><br><span class="line">        <span class="keyword">this</span>.age = age;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getName</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> name;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setName</span><span class="params">(String name)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.name = name;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getAge</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> age;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setAge</span><span class="params">(<span class="keyword">int</span> age)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.age = age;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p>然后需要在new Yaml的时候传入ClassLoader，例:</p><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Yaml yaml = <span class="keyword">new</span> Yaml(<span class="keyword">new</span> CustomClassLoaderConstructor(<span class="keyword">this</span>.getClass().getClassLoader()));</span><br></pre></td></tr></table></figure><p>此时可以调用loadAs把文件解析成JavaBean了。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">User user = yaml.loadAs(reader|input|file, User.class);</span><br></pre></td></tr></table></figure></p><p>是以前困惑着我的问题，现在终于解决。</p>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;p&gt;首先需要一个标准的JavaBean(无参构造, 每个成员需要有getter/setter方法)&lt;br&gt;例:&lt;/p&gt;
+&lt;figure class=&quot;highlight java&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;
+      
+    
+    </summary>
+    
+      <category term="后端" scheme="https://Mainyf.github.io/categories/%E5%90%8E%E7%AB%AF/"/>
+    
+    
+      <category term="Java" scheme="https://Mainyf.github.io/tags/Java/"/>
+    
+      <category term="后端" scheme="https://Mainyf.github.io/tags/%E5%90%8E%E7%AB%AF/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>React + TypeScript 路径解析问题</title>
+    <link href="https://Mainyf.github.io/2018/11/11/1/"/>
+    <id>https://Mainyf.github.io/2018/11/11/1/</id>
+    <published>2018-11-11T08:54:28.000Z</published>
+    <updated>2018-11-11T09:03:30.398Z</updated>
+    
+    <content type="html"><![CDATA[<p>昨天遇到了一个问题，在做React+TypeScript的路径解析时，发现无法解析tsx文件。<br><img src="https://upload.cc/i1/2018/11/11/brEQiv.png" alt=""></p><p><img src="https://upload.cc/i1/2018/11/11/5FYdhB.png" alt=""></p><p><img src="https://upload.cc/i1/2018/11/11/XW7RSx.png" alt=""></p><p>查阅了许多资料都无果，今天因某位大佬提醒，我是意识到可能需要对tsconfig.json进行配置，在查阅相关资料后，终于解决。例:</p><p>webpack.config.js:<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">'@src'</span>: path.resolve(__dirname, <span class="string">'..'</span>, <span class="string">'/src'</span>)</span><br></pre></td></tr></table></figure></p><p>tsconfig.json:<br><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">"compilerOptions": &#123;</span><br><span class="line">  "baseUrl": ".",</span><br><span class="line">  "allowJs": true,</span><br><span class="line">  ...</span><br><span class="line">  "paths": &#123;</span><br><span class="line">    "@src/*": ["./src/*"]</span><br><span class="line">  &#125;,</span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p><p>index.tsx:<br><figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> App <span class="keyword">from</span> <span class="string">'@src/App'</span>;</span><br></pre></td></tr></table></figure></p><p>运行:</p><p><img src="https://upload.cc/i1/2018/11/11/hdJ8VH.png" alt=""></p><p>折腾了许久，终于解决。</p>]]></content>
+    
+    <summary type="html">
+    
+      React + TypeScript 路径解析问题
+    
+    </summary>
+    
+      <category term="前端" scheme="https://Mainyf.github.io/categories/%E5%89%8D%E7%AB%AF/"/>
+    
+    
+      <category term="前端" scheme="https://Mainyf.github.io/tags/%E5%89%8D%E7%AB%AF/"/>
+    
+      <category term="react" scheme="https://Mainyf.github.io/tags/react/"/>
+    
+      <category term="typescript" scheme="https://Mainyf.github.io/tags/typescript/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>如何解决flexLayout的styles-d-ts问题</title>
+    <link href="https://Mainyf.github.io/2018/09/24/1/"/>
+    <id>https://Mainyf.github.io/2018/09/24/1/</id>
+    <published>2018-09-24T11:06:40.000Z</published>
+    <updated>2018-09-24T11:16:22.890Z</updated>
+    
+    <content type="html"><![CDATA[<p>编译错误信息:</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">ERROR in node_modules/@angular/flex-layout/extended/typings/style/style.d.ts(72,67): error TS1144: &apos;&#123;&apos; or &apos;;&apos; expected.</span><br><span class="line">node_modules/@angular/flex-layout/extended/typings/style/style.d.ts(74,5): error TS1128: Declaration or statement expected.</span><br><span class="line">node_modules/@angular/flex-layout/extended/typings/style/style.d.ts(74,33): error TS1005: &apos;;&apos; expected.</span><br><span class="line">node_modules/@angular/flex-layout/extended/typings/style/style.d.ts(74,39): error TS1109: Expression expected.</span><br><span class="line">node_modules/@angular/flex-layout/extended/typings/style/style.d.ts(79,5): error TS1128: Declaration or statement expected.</span><br><span class="line">node_modules/@angular/flex-layout/extended/typings/style/style.d.ts(80,1): error TS1128: Declaration or statement expected.</span><br></pre></td></tr></table></figure><p>如何解决?</p><p>进入package.json文件</p><p>1.修改typescript版本 -&gt; 2.9.2<br>2.修改RxJS版本为 -&gt; 6.2.x</p>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;p&gt;编译错误信息:&lt;/p&gt;
+&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;
+      
+    
+    </summary>
+    
+      <category term="前端" scheme="https://Mainyf.github.io/categories/%E5%89%8D%E7%AB%AF/"/>
+    
+    
+      <category term="前端" scheme="https://Mainyf.github.io/tags/%E5%89%8D%E7%AB%AF/"/>
+    
+      <category term="angular" scheme="https://Mainyf.github.io/tags/angular/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>在后端解决AJAX跨域问题(小记)</title>
+    <link href="https://Mainyf.github.io/2018/04/04/1/"/>
+    <id>https://Mainyf.github.io/2018/04/04/1/</id>
+    <published>2018-04-04T15:29:02.000Z</published>
+    <updated>2018-04-04T15:32:50.644Z</updated>
+    
+    <content type="html"><![CDATA[<p>在响应时设置如下的header：</p><ul><li>Access-Control-Allow-Origin, *</li><li>Access-Control-Allow-Headers, Origin, No-Cache, X-Requested-With, If-Modified-Since, Pragma,nLast-Modified, Cache-Control, Expires, Content-Type, Content-Language, Cache-Control, X-E4M-With,X_FILENAME</li><li>Access-Control-Allow-Methods, PUT,POST,GET,DELETE,OPTIONS</li></ul><p>添加完即可</p>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;p&gt;在响应时设置如下的header：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Access-Control-Allow-Origin, *&lt;/li&gt;
+&lt;li&gt;Access-Control-Allow-Headers, Origin, No-Cache, X-Requested-With, I
+      
+    
+    </summary>
+    
+      <category term="后端" scheme="https://Mainyf.github.io/categories/%E5%90%8E%E7%AB%AF/"/>
+    
+    
+      <category term="HTML" scheme="https://Mainyf.github.io/tags/HTML/"/>
+    
+      <category term="后端" scheme="https://Mainyf.github.io/tags/%E5%90%8E%E7%AB%AF/"/>
+    
+      <category term="ajax" scheme="https://Mainyf.github.io/tags/ajax/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>如何创建Simple React开发环境</title>
+    <link href="https://Mainyf.github.io/2018/03/15/1/"/>
+    <id>https://Mainyf.github.io/2018/03/15/1/</id>
+    <published>2018-03-15T15:56:14.000Z</published>
+    <updated>2018-03-17T08:30:17.049Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="适用于webpack-4-x"><a href="#适用于webpack-4-x" class="headerlink" title="适用于webpack 4.x"></a>适用于webpack 4.x</h1><p>配置一个React的开发环境在我看来是比较麻烦的，需要比较多的配置。<br>写一篇博文统计一下，让自己记住，也希望帮助到别人：</p><ul><li>webpack</li><li>webpack-cli</li><li>webpack-dev-server</li><li>react</li><li>react-dom</li><li>babel-loader@next </li><li>@babel/core </li><li>@babel/preset-react</li><li>style-loader</li><li>css-loader</li></ul><p>这里可能是必须的，在初始化(npm init -y)之后使用npm i -D {name}去安装他们，然后在webpack.config.js文件中写入以下内容：</p><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> debug = process.env.NODE_ENV !== <span class="string">"production"</span>;</span><br><span class="line"><span class="keyword">const</span> path = <span class="built_in">require</span>(<span class="string">'path'</span>)</span><br><span class="line"></span><br><span class="line"><span class="built_in">module</span>.exports = &#123;</span><br><span class="line">  devtool: debug ? <span class="string">"inline-sourcemap"</span> : <span class="literal">null</span>,</span><br><span class="line">  entry: <span class="string">'./src/js/root.js'</span>,</span><br><span class="line">  output: &#123;</span><br><span class="line">    path: path.resolve(__dirname, <span class="string">'dist'</span>),</span><br><span class="line">    filename: <span class="string">'[name].bundle.js'</span></span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="built_in">module</span>: &#123;</span><br><span class="line">    rules: [&#123;</span><br><span class="line">        test: <span class="regexp">/\.js$/</span>,</span><br><span class="line">        exclude: <span class="regexp">/(node_modules|bower_components)/</span>,</span><br><span class="line">        use: &#123;</span><br><span class="line">          loader: <span class="string">'babel-loader'</span>,</span><br><span class="line">          options: &#123;</span><br><span class="line">            presets: [<span class="string">'@babel/preset-react'</span>]</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;,</span><br><span class="line">      &#123;</span><br><span class="line">        test: <span class="regexp">/\.css$/</span>,</span><br><span class="line">        use: [&#123;</span><br><span class="line">            loader: <span class="string">'style-loader'</span></span><br><span class="line">          &#125;,</span><br><span class="line">          &#123;</span><br><span class="line">            loader: <span class="string">'css-loader'</span></span><br><span class="line">          &#125;</span><br><span class="line">        ]</span><br><span class="line">      &#125;</span><br><span class="line">    ]</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p>输入<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">webpack-dev-server --mode development --output-public-path dist --inline --hot</span><br></pre></td></tr></table></figure></p><p>来启动测试服务器，就可以进行调试了。</p><h1 id="工具推荐"><a href="#工具推荐" class="headerlink" title="工具推荐"></a>工具推荐</h1><p>Brackets 一个即时预览功能比较OK的文件编辑器</p><p>官网: <a href="http://brackets.io/" target="_blank" rel="noopener">http://brackets.io/</a></p><p>第三方介绍： <a href="http://caibaojian.com/brackets-editor.html" target="_blank" rel="noopener">http://caibaojian.com/brackets-editor.html</a></p><p>插件推荐：<a href="http://caibaojian.com/bracket-plugins.html" target="_blank" rel="noopener">http://caibaojian.com/bracket-plugins.html</a></p><p>优点：即时预览能力强，代码提示较好</p><p>缺点：插件少，界面UI单调。</p><hr><p>Axure 网页设计简单化软件</p><p>官网：<a href="https://www.axure.com/" target="_blank" rel="noopener">https://www.axure.com/</a></p><p>汉化地址：<a href="http://www.iaxure.com/menupage/download.html" target="_blank" rel="noopener">http://www.iaxure.com/menupage/download.html</a></p><p>教程：<a href="https://www.axure.com.cn/category/axure/" target="_blank" rel="noopener">https://www.axure.com.cn/category/axure/</a></p><p>优点：设计简单，样式修改简单</p><p>缺点：生成的网页不可直接使用，只可用于预览效果（不绝对）</p><hr><p>Pinegrow 网页设计简单化软件</p><p>官网：<a href="https://pinegrow.com/" target="_blank" rel="noopener">https://pinegrow.com/</a></p><p>优点：精致小巧，功能强大，样式与内容修改简单</p><p>缺点：小众，付费</p><hr><p>Parcel 简单的webpack脚手架</p><p>官网：<a href="https://parceljs.org/" target="_blank" rel="noopener">https://parceljs.org/</a></p><p>优点：0配置，新手如果不想花费精力在烦人的配置上，可以使用</p><p>缺点：无配置，拓展难</p><hr><p>Box Shadow 阴影效果在线调试</p><p>网站：<a href="http://tools.jb51.net/aideddesign/css3_boxshadow" target="_blank" rel="noopener">http://tools.jb51.net/aideddesign/css3_boxshadow</a></p><hr><p>CSS to React -&gt; CSS样式转React样式</p><p>网站：<a href="https://staxmanade.com/CssToReact/" target="_blank" rel="noopener">https://staxmanade.com/CssToReact/</a></p><hr><p>Browsersync -&gt; 网页即时预览工具</p><p>官网：<a href="http://www.browsersync.cn/" target="_blank" rel="noopener">http://www.browsersync.cn/</a></p><h1 id="更多"><a href="#更多" class="headerlink" title="更多"></a>更多</h1><p>如果你想要找到更多对你开发有帮助的东西的话，去这里</p><p><a href="https://zhuanlan.zhihu.com/p/29388576" target="_blank" rel="noopener">https://zhuanlan.zhihu.com/p/29388576</a></p>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;h1 id=&quot;适用于webpack-4-x&quot;&gt;&lt;a href=&quot;#适用于webpack-4-x&quot; class=&quot;headerlink&quot; title=&quot;适用于webpack 4.x&quot;&gt;&lt;/a&gt;适用于webpack 4.x&lt;/h1&gt;&lt;p&gt;配置一个React的开发环境在我看来是比较麻
+      
+    
+    </summary>
+    
+      <category term="前端" scheme="https://Mainyf.github.io/categories/%E5%89%8D%E7%AB%AF/"/>
+    
+    
+      <category term="前端" scheme="https://Mainyf.github.io/tags/%E5%89%8D%E7%AB%AF/"/>
+    
+      <category term="React" scheme="https://Mainyf.github.io/tags/React/"/>
+    
+      <category term="webpack" scheme="https://Mainyf.github.io/tags/webpack/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>webpack4.1的开发环境搭建</title>
+    <link href="https://Mainyf.github.io/2018/03/12/1/"/>
+    <id>https://Mainyf.github.io/2018/03/12/1/</id>
+    <published>2018-03-12T15:00:34.000Z</published>
+    <updated>2018-03-12T15:59:17.476Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="什么是Webpack"><a href="#什么是Webpack" class="headerlink" title="什么是Webpack"></a>什么是Webpack</h1><p>什么是Webpack？官网有过一句话:</p><blockquote><p>webpack is a module bundler</p></blockquote><p>webpack就是一个模块打包器，在webpack中，所有文件都可以是一个模块，列如JS、CSS、图片等等，webpack中可以使用loader去处理他们。</p><h1 id="第一步（安装node-js"><a href="#第一步（安装node-js" class="headerlink" title="第一步（安装node.js)"></a>第一步（安装node.js)</h1><p>webpack是基于node.js的，首先需要安装node.js。<br>官网 =&gt; <a href="https://nodejs.org/en/" target="_blank" rel="noopener">https://nodejs.org/en/</a></p><p>下载LTS或者是Current版本都可以。</p><p>如果没有科学上网工具或者网络环境不佳的话，可以使用cnpm，这是淘宝用来解决npm的速度问题的一个项目：<br>cnpm =&gt; <a href="https://npm.taobao.org/" target="_blank" rel="noopener">https://npm.taobao.org/</a></p><h1 id="安装webpack"><a href="#安装webpack" class="headerlink" title="安装webpack"></a>安装webpack</h1><p>首先创建一个文件夹，例如这里创建一个名字为HelloWebpack的文件夹：<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mkdir HelloWebapck</span><br><span class="line">cd HelloWebpack</span><br><span class="line">npm init -y</span><br></pre></td></tr></table></figure></p><p>这里初始化了一个npm的包，-y表示在创建的时候提示的选项全部选择Yes。<br>这样目录下就多了一个package.json的文件。</p><p>然后使用命令来安装webpack，首先全局安装webpack</p><blockquote><p>npm i -g webpack</p></blockquote><p>此操作只需要一次就行了，然后在本地在此安装一次</p><blockquote><p>npm i -D webpack</p></blockquote><p>等待完成，就安装好了webpack，出现了WARN无需理会，出现ERROR才说明出现问题，如果网络状况不佳，可以使用cnpm，把文中的npm替换为cnpm。</p><p>安装完成之后，输入</p><blockquote><p>webpack –version</p></blockquote><p><img src="https://ws1.sinaimg.cn/large/006iinfjgy1fpag08w9e3j30rl0efwf5.jpg" alt=""></p><p>这里我的版本是4.1</p><h1 id="Example"><a href="#Example" class="headerlink" title="Example"></a>Example</h1><p>这里创建一个index.html文件作为显示效果的文件，并输入一些内容</p><figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;!DOCTYPE html&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">html</span> <span class="attr">lang</span>=<span class="string">"en"</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">head</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">meta</span> <span class="attr">charset</span>=<span class="string">"UTF-8"</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">title</span>&gt;</span>Document<span class="tag">&lt;/<span class="name">title</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">head</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">"./dist/main.js"</span>&gt;</span><span class="undefined"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></span><br></pre></td></tr></table></figure><p>这里引入了同路径下的dist文件夹下的main.js文件，如果你不经过一些配置的话，这是webpack的默认输出路径和Name。<br>这里需要注意，如果不进行任何配置的话，webpack会默认加载src文件夹下的文件，所以这里创建一个src文件夹，在创建一个index.js作为入口：<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">console</span>.log(<span class="string">'Hello webpack.'</span>)</span><br></pre></td></tr></table></figure></p><p>执行webpack：<br><img src="https://ws1.sinaimg.cn/large/006iinfjgy1fpag83dm7hj30rl0ef3zr.jpg" alt=""></p><p>这里有个警告，目前无需理会，打开index.html看看效果：<br><img src="https://ws1.sinaimg.cn/large/006iinfjgy1fpag95eyj1j30pm08p0sr.jpg" alt=""></p><p>可以看到已经出来效果了，但是这只是webpack的一个小应用，在实际开发中需要用到不少webpack的东西。</p><h1 id="Webpack-Config"><a href="#Webpack-Config" class="headerlink" title="Webpack Config"></a>Webpack Config</h1><p>webpack的复杂主要在配置文件，这可能是个比较头疼的问题，这里来看一些配置里面的定义：</p><ul><li>entry</li><li>output</li><li>loader</li><li>plugins</li></ul><h2 id="Entry-and-ouput"><a href="#Entry-and-ouput" class="headerlink" title="Entry and ouput"></a>Entry and ouput</h2><p>entry，也就是入口，上文中有说到如果不经配置的话，webpack会默认加载项目下的src/index.js文件，可是你可以在配置文件中去定义入口，首先在根目录下创建一个webpack.config.js文件，这个文件就是webpack的配置文件了，写入以下内容来指定入口。<br><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">const path = require('path')</span><br><span class="line"></span><br><span class="line">module.exports = &#123;</span><br><span class="line">entry: './src/js/index.js',</span><br><span class="line">output: &#123;</span><br><span class="line">path: path.resolve(__dirname, 'dist'),</span><br><span class="line">filename: 'bundle.[name].js'</span><br><span class="line">&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p><p>首先看到了module.exports这里是指定了这个js文件的外置接口，这样就可以让其他JS文件去引用了。<br>这里的entry指定了入口文件为src/js/index.js，我也把index.js文件稍微变换一下位置。<br>这里的output指定了出口，也就是在打包完成之后输出的目录和文件名，这里使用到了获得到了本目录的绝对路径再加上dist目录，在下面也设置了输出文件的文件名。</p><p>再次输入webpack打包：</p><p><img src="https://ws1.sinaimg.cn/large/006iinfjgy1fpago9ndvfj30rl0eft9j.jpg" alt=""></p><p>在看看dist目录下：<br><img src="https://ws1.sinaimg.cn/large/006iinfjgy1fpagnzjc41j30k6069wef.jpg" alt=""></p><p>可以看见已经成功了。</p><h2 id="Loader"><a href="#Loader" class="headerlink" title="Loader"></a>Loader</h2><p>loader可以用作处理一些非JS的文件，或者对JS文件拓展，列如已经被广泛认知的ES6，下面来看看定义：</p><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> path = <span class="built_in">require</span>(<span class="string">'path'</span>)</span><br><span class="line"></span><br><span class="line"><span class="built_in">module</span>.exports = &#123;</span><br><span class="line">entry: <span class="string">'./src/js/index.js'</span>,</span><br><span class="line">output: &#123;</span><br><span class="line">path: path.resolve(__dirname, <span class="string">'dist'</span>),</span><br><span class="line">filename: <span class="string">'bundle.[name].js'</span></span><br><span class="line">&#125;,</span><br><span class="line"><span class="built_in">module</span>: &#123;</span><br><span class="line">rules: [</span><br><span class="line">&#123; </span><br><span class="line">test: <span class="regexp">/\.txt$/</span>, </span><br><span class="line">use: <span class="string">'raw-loader'</span></span><br><span class="line">&#125;</span><br><span class="line">]</span><br><span class="line">&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p>这里使用了官网的例子</p><ul><li>test表示选择一个文件类型</li><li>use表示对这种文件类型使用什么loader进行转换</li></ul><h2 id="Plugins"><a href="#Plugins" class="headerlink" title="Plugins"></a>Plugins</h2><p>loader 被用于转换某些类型的模块，而插件则可以用于执行范围更广的任务。插件的范围包括，从打包优化和压缩，一直到重新定义环境中的变量。插件接口功能极其强大，可以用来处理各种各样的任务。</p><p>想要使用一个插件，你只需要 require() 它，然后把它添加到 plugins 数组中。多数插件可以通过选项(option)自定义。你也可以在一个配置文件中因为不同目的而多次使用同一个插件，这时需要通过使用 new 操作符来创建它的一个实例。</p><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> HtmlWebpackPlugin = <span class="built_in">require</span>(<span class="string">'html-webpack-plugin'</span>); <span class="comment">// 通过 npm 安装</span></span><br><span class="line"><span class="keyword">const</span> webpack = <span class="built_in">require</span>(<span class="string">'webpack'</span>); <span class="comment">// 用于访问内置插件</span></span><br><span class="line"><span class="keyword">const</span> path = <span class="built_in">require</span>(<span class="string">'path'</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> config = &#123;</span><br><span class="line">  entry: <span class="string">'./path/to/my/entry/file.js'</span>,</span><br><span class="line">  output: &#123;</span><br><span class="line">    path: path.resolve(__dirname, <span class="string">'dist'</span>),</span><br><span class="line">    filename: <span class="string">'my-first-webpack.bundle.js'</span></span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="built_in">module</span>: &#123;</span><br><span class="line">    rules: [</span><br><span class="line">      &#123; <span class="attr">test</span>: <span class="regexp">/\.txt$/</span>, <span class="attr">use</span>: <span class="string">'raw-loader'</span> &#125;</span><br><span class="line">    ]</span><br><span class="line">  &#125;,</span><br><span class="line">  plugins: [</span><br><span class="line">    <span class="keyword">new</span> webpack.optimize.UglifyJsPlugin(),</span><br><span class="line">    <span class="keyword">new</span> HtmlWebpackPlugin(&#123;<span class="attr">template</span>: <span class="string">'./src/index.html'</span>&#125;)</span><br><span class="line">  ]</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="built_in">module</span>.exports = config;</span><br></pre></td></tr></table></figure><h1 id="可能有用的资源"><a href="#可能有用的资源" class="headerlink" title="可能有用的资源"></a>可能有用的资源</h1><p>webpack中文官网<br><a href="https://doc.webpack-china.org" target="_blank" rel="noopener">https://doc.webpack-china.org</a></p><p>webpack教程<br><a href="https://blog.zfanw.com/webpack-tutorial/" target="_blank" rel="noopener">https://blog.zfanw.com/webpack-tutorial/</a></p><p><a href="https://hulufei.gitbooks.io/react-tutorial/content/webpack.html" target="_blank" rel="noopener">https://hulufei.gitbooks.io/react-tutorial/content/webpack.html</a></p><p><a href="http://gcidea.info/2016/12/16/webpack-demos/" target="_blank" rel="noopener">http://gcidea.info/2016/12/16/webpack-demos/</a></p><p>webpack脚手架</p><p><a href="http://www.css88.com/doc/parcel/" target="_blank" rel="noopener">http://www.css88.com/doc/parcel/</a></p><p><a href="https://github.com/heyui/hey-cli/blob/master/README_zh.md" target="_blank" rel="noopener">https://github.com/heyui/hey-cli/blob/master/README_zh.md</a></p>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;h1 id=&quot;什么是Webpack&quot;&gt;&lt;a href=&quot;#什么是Webpack&quot; class=&quot;headerlink&quot; title=&quot;什么是Webpack&quot;&gt;&lt;/a&gt;什么是Webpack&lt;/h1&gt;&lt;p&gt;什么是Webpack？官网有过一句话:&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;
+      
+    
+    </summary>
+    
+      <category term="前端" scheme="https://Mainyf.github.io/categories/%E5%89%8D%E7%AB%AF/"/>
+    
+    
+      <category term="前端" scheme="https://Mainyf.github.io/tags/%E5%89%8D%E7%AB%AF/"/>
+    
+      <category term="webpack" scheme="https://Mainyf.github.io/tags/webpack/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>React-组件化开发之路(三)</title>
+    <link href="https://Mainyf.github.io/2018/03/07/1/"/>
+    <id>https://Mainyf.github.io/2018/03/07/1/</id>
+    <published>2018-03-06T16:23:11.000Z</published>
+    <updated>2018-03-06T16:23:08.182Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="Component-Styles"><a href="#Component-Styles" class="headerlink" title="Component Styles"></a>Component Styles</h1><p>你可以在render函数返回的HTML标签中添加style属性来增加组件的样式：</p><p><img src="https://ws1.sinaimg.cn/large/006iinfjgy1fp3im3h0xzj30jp07n3z3.jpg" alt=""></p><p>这里给h1标签添加一个字体大小样式，这里的样式注意不要写在render函数外面，在看看效果：</p><p><img src="https://ws1.sinaimg.cn/large/006iinfjgy1fp3ioi1603j30m109vjrh.jpg" alt=""></p><p>这样就为组件完成了样式设置，这里的样式按照小写驼峰式，和原生js设置样式没有区别。</p><h1 id="Component-State"><a href="#Component-State" class="headerlink" title="Component State"></a>Component State</h1><p>组件状态，组件可以根据用户的某些操作来改变状态，列如通过点击、hover之类的事件行为来进行操作：</p><p><img src="https://ws1.sinaimg.cn/large/006iinfjgy1fp3iz2gwtcj30l40e2jsk.jpg" alt=""></p><p>这里增加了几个东西，getInitialState、handleClick，两个函数，从语义上来看大致可以清楚都是做什么的</p><ul><li>getInitialState =&gt; 初始化State，React应该会获得此函数返回的对象来初始化state的值</li><li>handleClick =&gt; 处理点击事件</li></ul><p>这里有写地方需要注意：</p><ul><li>render函数返回的标签不允许出现一个以上的顶级父标签，所以这里使用了一个div作为父标签</li><li>在其中绑定事件的时候需要小写驼峰式</li></ul><p>这里应该很清楚了，给button标签绑定了一个事件，这个事件会设置state，如果设置的值已经存在就会覆盖，不存在则创建。<br>这里做了自增操作，每次点击按钮都会让state中的count变量值+1，看看效果：</p><p><img src="https://ws1.sinaimg.cn/large/006iinfjgy1fp3j82ma1wj30cg05i0so.jpg" alt=""></p><h1 id="Component-Props"><a href="#Component-Props" class="headerlink" title="Component Props"></a>Component Props</h1><p>Props在上一节已经说了，和state相似，但是如果要设置值的话，只能在父组件中设置，这是一个组件嵌套的例子：<br><img src="https://ws1.sinaimg.cn/large/006iinfjgy1fp3jed39lbj30lw0cqjsn.jpg" alt=""></p><p>这里可以看出来，在Parent组件中嵌套了一个子组件，这里有个值，是props中的value变量，在render函数写入DOM的时候，指定了value的值。<br>父组件把值也传递给了子组件，子组件得到值进行显示，如果该组件也嵌套了组件，那么同样传递，循环往复，看看效果：</p><p><img src="https://ws1.sinaimg.cn/large/006iinfjgy1fp3jhg6b3jj30ct069749.jpg" alt=""></p><h1 id="Component-生命周期"><a href="#Component-生命周期" class="headerlink" title="Component 生命周期"></a>Component 生命周期</h1><p>常用的生命周期方法有：</p><ul><li>componentWillMount 在组件加载之前调用</li><li>componentDidMount 在组件加载之后调用</li><li>componentWillReceiveProps 组件中的Props更新之后被调用</li><li>shouldComponentUpdate 返回一个boolean值，组件中的props | state更新时调用</li><li>componentWillUpdate 组件中props|state更新时，但是还没有写入的时候调用</li><li>componentDidUpdate props|state更新写入之后被调用</li><li>componentWillUnmount 组件从DOM中移除的时候被调用</li></ul><h1 id="Chrome-React-插件"><a href="#Chrome-React-插件" class="headerlink" title="Chrome React 插件"></a>Chrome React 插件</h1><p>facebook有开发一款方便开发者调试React的Chrome插件，叫做<strong>React Developer Tools</strong>。<br>Github： <a href="https://github.com/facebook/react-devtools" target="_blank" rel="noopener">https://github.com/facebook/react-devtools</a></p><h1 id="React-Component-API"><a href="#React-Component-API" class="headerlink" title="React Component API"></a>React Component API</h1><p>React提供了一些函数用来去设置组件的信息，这些函数包括上面的setState。<br><strong>setState</strong> =&gt; 设置状态<br>填入一个对象和一个函数(可选)，例：<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">setState(&#123;</span><br><span class="line">value: <span class="number">1</span> </span><br><span class="line"><span class="comment">//填入一个新的对象，值会和原来的state合并</span></span><br><span class="line"><span class="comment">//如果不存在则创建该值</span></span><br><span class="line">&#125;,<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line"><span class="built_in">console</span>.log(<span class="string">'setState execute success.'</span>);</span><br><span class="line"><span class="comment">//此函数在setStatee执行完成，已经写入组件之后调用</span></span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure></p><hr><p><strong>replaceState</strong> =&gt; 替换状态<br>填入一个对象和一个函数(可选)，例：<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">replaceState(&#123;</span><br><span class="line">value: <span class="number">1</span>  <span class="comment">//填入一个新的对象，值会替换掉原来state的值</span></span><br><span class="line">&#125;,<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line"><span class="built_in">console</span>.log(<span class="string">'replaceState execute success.'</span>);</span><br><span class="line"><span class="comment">//此函数在replaceState执行完成，已经写入组件之后调用</span></span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure></p><hr><p><strong>setProps</strong> =&gt; 设置属性<br>填入一个对象和一个函数(可选)，例：<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">setProps(&#123;</span><br><span class="line">value: <span class="number">1</span>  <span class="comment">//填入一个新的对象，值会和原来的props合并</span></span><br><span class="line">&#125;,<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line"><span class="built_in">console</span>.log(<span class="string">'setProps execute success.'</span>);</span><br><span class="line"><span class="comment">//此函数在setProps执行完成，已经写入组件之后调用</span></span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure></p><hr><p><strong>replaceProps</strong> =&gt; 替换属性<br>填入一个对象和一个函数(可选)，例：<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">replaceProps(&#123;</span><br><span class="line">value: <span class="number">1</span>  <span class="comment">//填入一个新的对象，值会替换掉原来props的值</span></span><br><span class="line">&#125;,<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line"><span class="built_in">console</span>.log(<span class="string">'replaceProps execute success.'</span>);</span><br><span class="line"><span class="comment">//此函数在replaceProps执行完成，已经写入组件之后调用</span></span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure></p><hr><p><strong>forceUpdate</strong> =&gt; 强制更新组件<br>填入一个函数(可选)，例：<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">forceUpdate(<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line"><span class="built_in">console</span>.log(<span class="string">'forceUpdate execute success.'</span>);</span><br><span class="line"><span class="comment">//此函数在forceUpdate执行完成，已经写入组件之后调用</span></span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure></p><hr><p><strong>findDOMNode</strong> =&gt; 获得DOM节点<br>例：<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">DOMElement findDOMNode()</span><br><span class="line"><span class="comment">//如果组件已经加载到了DOM中，该方法就会返回解析过后的DOM元素</span></span><br></pre></td></tr></table></figure></p><hr><p><strong>isMounted</strong> =&gt; 判断组件加载状态<br>例：<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">bool isMounted()</span><br><span class="line"><span class="comment">//返回true表示组件以及加载到了DOM中，false则反之</span></span><br></pre></td></tr></table></figure></p>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;h1 id=&quot;Component-Styles&quot;&gt;&lt;a href=&quot;#Component-Styles&quot; class=&quot;headerlink&quot; title=&quot;Component Styles&quot;&gt;&lt;/a&gt;Component Styles&lt;/h1&gt;&lt;p&gt;你可以在render函数返回
+      
+    
+    </summary>
+    
+      <category term="前端" scheme="https://Mainyf.github.io/categories/%E5%89%8D%E7%AB%AF/"/>
+    
+    
+      <category term="前端" scheme="https://Mainyf.github.io/tags/%E5%89%8D%E7%AB%AF/"/>
+    
+      <category term="React" scheme="https://Mainyf.github.io/tags/React/"/>
+    
+      <category term="组件化" scheme="https://Mainyf.github.io/tags/%E7%BB%84%E4%BB%B6%E5%8C%96/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>React-组件化开发之路(二)</title>
+    <link href="https://Mainyf.github.io/2018/03/06/1/"/>
+    <id>https://Mainyf.github.io/2018/03/06/1/</id>
+    <published>2018-03-05T16:36:22.000Z</published>
+    <updated>2018-03-05T16:36:21.663Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="Component"><a href="#Component" class="headerlink" title="Component"></a>Component</h2><p>除了在ReactDOM.render中直接写HTML标签之外，还可以写成Component(组件)。<br>列如：<br><img src="https://ws1.sinaimg.cn/large/006iinfjgy1fp2dut6w5qj30la0dg75x.jpg" alt=""></p><p>在看看浏览器：<br><img src="https://ws1.sinaimg.cn/large/006iinfjgy1fp2dvjflhwj30fk08h3ye.jpg" alt=""></p><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ReactDOM.render(&lt;h1&gt;Hello World.&lt;/h1&gt;, <span class="built_in">document</span>.querySelector(<span class="string">'#root'</span>))</span><br></pre></td></tr></table></figure><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> TestComponent = React.createClass(&#123;</span><br><span class="line">render () &#123;</span><br><span class="line">      <span class="keyword">return</span> (&lt;h1&gt;Hello world.&lt;/h1&gt;)</span><br><span class="line">&#125;</span><br><span class="line">&#125;)</span><br><span class="line">ReactDOM.render(&lt;TestComponent /&gt;, document.querySelector('#root'))</span><br></pre></td></tr></table></figure><p>可以看出，这两种写法是等效的，这样就完成了一个组件的创建，这样比较清晰，也容易进行拓展。  </p><h2 id="Props"><a href="#Props" class="headerlink" title="Props"></a>Props</h2><p>可以在Component其中添加Props来达到一定程度的自定义，例：<br><img src="https://ws1.sinaimg.cn/large/006iinfjgy1fp2e2rgnb2j30m806djrx.jpg" alt=""></p><p>这里在h1标签的内容中添加了this.props.name，这相当于一个变量，props我觉得可能是一个对象，“.name”差不多相当于在其中创建了一个变量。<br>我们在组件中添加name属性，值为Mainyf，看看浏览器窗口：</p><p><img src="https://ws1.sinaimg.cn/large/006iinfjgy1fp2e6ebrkwj30i008tglj.jpg" alt=""></p><p>同时，这样的变量还可以作用于标签属性中，比如class和id：</p><p><img src="https://ws1.sinaimg.cn/large/006iinfjgy1fp2e95x43nj30os06a74y.jpg" alt=""></p><p>这里的className等效于class，因为class在js中是一个关键/保留字，如果需要设定class就需要写成className。<br>让我们在来看看Developer Tools：<br><img src="https://ws1.sinaimg.cn/large/006iinfjgy1fp2eazk722j30ey04ndfv.jpg" alt=""></p><p>这里可以看出，class和id都已经成功加载。</p>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;h2 id=&quot;Component&quot;&gt;&lt;a href=&quot;#Component&quot; class=&quot;headerlink&quot; title=&quot;Component&quot;&gt;&lt;/a&gt;Component&lt;/h2&gt;&lt;p&gt;除了在ReactDOM.render中直接写HTML标签之外，还可以写成Compon
+      
+    
+    </summary>
+    
+      <category term="前端" scheme="https://Mainyf.github.io/categories/%E5%89%8D%E7%AB%AF/"/>
+    
+    
+      <category term="前端" scheme="https://Mainyf.github.io/tags/%E5%89%8D%E7%AB%AF/"/>
+    
+      <category term="React" scheme="https://Mainyf.github.io/tags/React/"/>
+    
+      <category term="组件化" scheme="https://Mainyf.github.io/tags/%E7%BB%84%E4%BB%B6%E5%8C%96/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>React-组件化开发之路(一)</title>
+    <link href="https://Mainyf.github.io/2018/03/05/1/"/>
+    <id>https://Mainyf.github.io/2018/03/05/1/</id>
+    <published>2018-03-04T16:09:37.000Z</published>
+    <updated>2018-03-05T16:31:59.224Z</updated>
+    
+    <content type="html"><![CDATA[<p>&nbsp; &nbsp; 前端开发，编写结构混乱的HTML页面代码是比较难以维护的，可读性也很低，记得在刚开始去学前端的时候，去网上找一些模版看的时候都是比较难读的。<br>&nbsp; &nbsp; 我学前端的时间也不长，也不了解前端以前据说很黑暗的历史，我学会使用了React，当然只是初步。<br>&nbsp; &nbsp; 以前在某教程网上看过Vue的教程，连带了一起看了看React，当时看到的：</p><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ReactDOM.render(&lt;h1&gt;Hello World!&lt;/h1&gt;, <span class="built_in">document</span>.querySelector(<span class="string">'#example'</span>));</span><br></pre></td></tr></table></figure><p>&nbsp; &nbsp; 大致是这样的一个代码，我在想可能就是个向指定元素添加子元素的js库。<br>&nbsp; &nbsp; 后来经过一段时间的前端学习后，学会了使用Bootstrap快速搭建页面，写一个网页也只是用Bootstrap提供的类去拼凑一个页面，在经过一些修饰，就可以是一个看得过去的网页了。<br>&nbsp; &nbsp; 然后我看到了React，之前经常有人说用React造组件(记不清了，不知道是不是)，我自己也有用CSS和JS去造过一些轮子，列如轮播图和一些小组件，也算是平时造着玩玩了。<br>&nbsp; &nbsp; 看到React是在仿写一个网页模版的时候发现的，我正在写导航栏，凑效就看到了React，跟着教程把整个导航的nav写进了Component中，后来发觉这样的组件化开发模式可以让开发效率提高不少。</p><h2 id="React基本操作"><a href="#React基本操作" class="headerlink" title="React基本操作"></a>React基本操作</h2><p>&nbsp; &nbsp;  在上面也说过了，React就是向页面的某个元素中添加子节点，不过这个在这个子节点上React应该做了不少工作，把子节点变成了组件。</p><figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">"./lib/react.min.js"</span>&gt;</span><span class="undefined"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">"./lib/react-dom.min.js"</span>&gt;</span><span class="undefined"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">"./lib/browser.min.js"</span>&gt;</span><span class="undefined"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br></pre></td></tr></table></figure><p>&nbsp; &nbsp;  我是在本地引入的这三个js库，当然也可以用cdn，网上一搜一大堆。    </p><ul><li>react.js =&gt; React核心库</li><li>react-dom.js =&gt; React对DOM操作的支持库</li><li>browser.js =&gt; ES6语法支持库  </li></ul><p>&nbsp; &nbsp;  在引入需要的库之后，就来看看一个简单的Demo：</p><figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;!DOCTYPE html&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">html</span> <span class="attr">lang</span>=<span class="string">"en"</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">head</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">meta</span> <span class="attr">charset</span>=<span class="string">"UTF-8"</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">meta</span> <span class="attr">name</span>=<span class="string">"viewport"</span> <span class="attr">content</span>=<span class="string">"width=device-width, initial-scale=1.0"</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">meta</span> <span class="attr">http-equiv</span>=<span class="string">"X-UA-Compatible"</span> <span class="attr">content</span>=<span class="string">"ie=edge"</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">title</span>&gt;</span>Demo Component<span class="tag">&lt;/<span class="name">title</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">"./lib/react.min.js"</span>&gt;</span><span class="undefined"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">"./lib/react-dom.min.js"</span>&gt;</span><span class="undefined"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">"./lib/browser.min.js"</span>&gt;</span><span class="undefined"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">head</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">"example"</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="comment">&lt;!-- 类型一定要写成babel --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">script</span> <span class="attr">type</span>=<span class="string">"text/babel"</span>&gt;</span><span class="undefined">   </span></span><br><span class="line"><span class="javascript"> ReactDOM.render(<span class="xml"><span class="tag">&lt;<span class="name">h1</span>&gt;</span>Hello World!<span class="tag">&lt;/<span class="name">h1</span>&gt;</span></span>, <span class="built_in">document</span>.querySelector(<span class="string">'#example'</span>));</span></span><br><span class="line"><span class="undefined"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></span><br></pre></td></tr></table></figure><p>来看看结果：</p><p><img src="https://ws1.sinaimg.cn/large/006iinfjgy1fp19703jfvj30na0bb749.jpg" alt=""></p><p>在看看Developer Tools里面的内容：<br><img src="https://ws1.sinaimg.cn/large/006iinfjgy1fp197wxwngj30gp06f74h.jpg" alt=""></p><p>script标签内的内容可以保存到*.jsx文件中，这个文件是React的自带的一个语法文件，你可以这样导入他<br><figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">"./demo.jsx"</span> <span class="attr">type</span>=<span class="string">"text/babel"</span>&gt;</span><span class="undefined"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br></pre></td></tr></table></figure></p><p>&nbsp; &nbsp;  这样去使用的话就不可以直接用浏览器打开html文件进行浏览，你需要搭建一个http服务器，这里我推荐使用Python自带的一个功能，可以快速搭建http服务器。<br>去<a href="https://www.python.org/" target="_blank" rel="noopener">这里</a>下载Python，然后cd到你需要开启服务器的目录下输入<br><figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python -m http.server</span><br></pre></td></tr></table></figure></p><p>就可以快速搭建一个简单易用的http服务器。</p>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;p&gt;&amp;nbsp; &amp;nbsp; 前端开发，编写结构混乱的HTML页面代码是比较难以维护的，可读性也很低，记得在刚开始去学前端的时候，去网上找一些模版看的时候都是比较难读的。&lt;br&gt;&amp;nbsp; &amp;nbsp; 我学前端的时间也不长，也不了解前端以前据说很黑暗的历史，我学会使用了R
+      
+    
+    </summary>
+    
+      <category term="前端" scheme="https://Mainyf.github.io/categories/%E5%89%8D%E7%AB%AF/"/>
+    
+    
+      <category term="前端" scheme="https://Mainyf.github.io/tags/%E5%89%8D%E7%AB%AF/"/>
+    
+      <category term="React" scheme="https://Mainyf.github.io/tags/React/"/>
+    
+      <category term="组件化" scheme="https://Mainyf.github.io/tags/%E7%BB%84%E4%BB%B6%E5%8C%96/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>CSS背景图片自适应</title>
+    <link href="https://Mainyf.github.io/2018/02/27/1/"/>
+    <id>https://Mainyf.github.io/2018/02/27/1/</id>
+    <published>2018-02-26T16:15:47.000Z</published>
+    <updated>2018-03-19T07:57:39.127Z</updated>
+    
+    <content type="html"><![CDATA[<p>这可能是个比较基本的问题，但是可能我记性不太好，还是记下来比较好。<br><figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-class">.div</span> &#123;</span><br><span class="line">  <span class="attribute">overflow</span>: hidden;</span><br><span class="line">  <span class="attribute">position</span>: fixed;</span><br><span class="line">  <span class="attribute">width</span>: <span class="number">100%</span>;</span><br><span class="line">  <span class="attribute">height</span>: <span class="number">100%</span>;</span><br><span class="line">  <span class="attribute">background</span>: <span class="built_in">url</span>(<span class="string">"image.png"</span>) no-repeat;</span><br><span class="line">  <span class="attribute">background-size</span>: cover;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p><p>给元素加上就可以让背景自适应了，放大，缩小，改变浏览器窗口大小都不会出现问题。</p>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;p&gt;这可能是个比较基本的问题，但是可能我记性不太好，还是记下来比较好。&lt;br&gt;&lt;figure class=&quot;highlight css&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;spa
+      
+    
+    </summary>
+    
+      <category term="前端" scheme="https://Mainyf.github.io/categories/%E5%89%8D%E7%AB%AF/"/>
+    
+    
+      <category term="前端" scheme="https://Mainyf.github.io/tags/%E5%89%8D%E7%AB%AF/"/>
+    
+      <category term="CSS" scheme="https://Mainyf.github.io/tags/CSS/"/>
+    
+      <category term="HTML" scheme="https://Mainyf.github.io/tags/HTML/"/>
+    
+  </entry>
+  
+</feed>

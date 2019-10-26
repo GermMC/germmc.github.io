@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="utf-8"?>
+<search>
+  <entry>
+    <title><![CDATA[Minecraft-2DDrawing-tutorial (3)]]></title>
+    <url>%2F2019%2F02%2F23%2F1%2F</url>
+    <content type="text"><![CDATA[HUD 是什么?可以参考 wiki, 我个人理解可能是与UI相似, 展示给用户的界面。就像平时看到的血条、经验条等等。Forge用 GuiIngameForge 类 替换了原版的 GuiIngame 类，为我们提供了一些事件，一起来看看。 怎么写自己的HUD?可以监听 RenderGameOverlayEvent 事件，这样就可以插手HUD的渲染，阻止或者渲染你自己的HUD。 RenderGameOverlayEvent类有五个内部类: 我们可以监听Pre、Post来在渲染前后做操作。 如果你想阻止原版的某个HUD渲染，那么你可能需要知道它们的类型: 类型 描述 All 所有的 HELMET 头盔(列如南瓜头) PORTAL 传送门 CROSSHAIRS 光标 BOSSHEALTH Boss血条 BOSSINFO 渲染血条上的文字信息，但这貌似是无法阻止的，你可以通过监听BOSSHEALTH来阻止，这会在BOSSINFO之前post ARMOR 防御值 HEALTH 生命值 FOOD 饱食度 AIR 氧气值 HOTBAR 快捷物品栏 EXPERIENCE 经验 TEXT 文字 HEALTHMOUNT 坐骑的生命值 JUMPBAR 坐骑的跳跃条 CHAT 聊天文字信息 PLAYER_LIST Tab键的玩家列表 DEBUG debug 信息 POTION_ICONS 药水的图标 SUBTITLES 1.11新增的右下角提示 FPS_GRAPH Lagometer信息 VIGNETTE unknown 现在试着在屏幕上写一行字看看。 看看效果: 不过这么做的话，有点糟糕，现在切换到生存模式: 可以看到原来的材质都变成了字体的纹理上，这个时候需要手动绑定回去，原来的纹理是Gui类的静态变量ICONS，这是一张雪碧图，里面有游戏中需要用到的大部分图标: 再看看效果: MC的颜色解析例如这里的10xFFFFFFFF 是一个十六进制的颜色代码，组成部分由:10x FF((AA)alpha) FFFFFF(RRGGBB) 例: 0xaaFFFFFF即为设置alpha值为0.666…(0xaa / 255) 简单的HUD信息展示例子部分代码: source 效果:]]></content>
+      <categories>
+        <category>Java</category>
+      </categories>
+      <tags>
+        <tag>Java</tag>
+        <tag>opengl</tag>
+        <tag>minecraft</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[Minecraft 2DDrawing tutorial (2)]]></title>
+    <url>%2F2019%2F01%2F07%2F1%2F</url>
+    <content type="text"><![CDATA[2D材质绘制首先你需要一个材质图片，这里找一个256 * 256的占位图来用。(注: 在1.11以上，资源文件名需要全小写，用”_”分割，否则你的资源将无法被读取)(占位图地址: https://via.placeholder.com/256) 这里我把图片命名为placeholder_image,如果您的名字与我不一样，请注意全小写。这里按照要求建立路径时需要以assets/&#60;domain&#62;/&#60;ctx&#62;/&#60;path&#62;，这里可以参考minecraft本身的路径 如果你想了解更多有关资源路径的信息，请看这里 首先照例覆盖drawScreen，然后我们需要有一个ResourceLocation，填上domain(MODID)和资源路径，就得到了一个资源文件的”Location”。在绘制之前，我们需要去绑定这个材质，然后使用drawTexturedModalRect来绘制刚刚的材质。 这里的x,y是开始绘制的左上角位置: 这里的textureX,textureY是纹理绘制的左上角位置: width和height应该不需要解释了, 效果: drawTexturedModalRect只能绘制256256的材质，如果想绘制高于这个马赛克分辨率的材质就得用到 drawModalRectWithCustomSizedTexture，这个方法不仅可以绘制自定义的大小，而且还也有缩放效果，下面绘制一个1000 1000的材质:(材质地址: https://via.placeholder.com/1000) vWidth和vHeight就是纹理中要绘制区域的width与height。]]></content>
+      <categories>
+        <category>Java</category>
+      </categories>
+      <tags>
+        <tag>Java</tag>
+        <tag>opengl</tag>
+        <tag>minecraft</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[Minecraft 2DDrawing tutorial (1)]]></title>
+    <url>%2F2019%2F01%2F06%2F1%2F</url>
+    <content type="text"><![CDATA[简述 / 介绍MC使用了Java的3D游戏引擎 LWJGL，LWJGL集成了: opengl(图形) openal(音频) opencl(并行计算) 绘制主要用到 OpenGL。OpenGL在这里是个高性能的绘图库，有一系列函数/方法调整状态和绘制图形。 这里使用的版本是Forge 1.12.2。 首先你需要一个屏幕，或者说需要一个 “画布” ，只有当你有了一个载体的时候才可以在上面进行绘制。首先需要一个类，去继承GuiScreen类，这是屏幕的基类。(注: 我略过了配置开发环境的步骤，这一步可以参考其他教程。) 这里我创建了一个GuiDemoScreen类，然后继承了GuiScreen，这样就得到了一个基本的屏幕。那如何才能显示我们的屏幕呢? 我们可以通过监听 GuiOpenEvent 事件来把主界面屏幕替换成刚刚写的GuiDemoScreen。 这里监听的GuiOpenEvent在打开一个GuiScreen的时候触发，我们可以监听此事件然后去吧打开的GuiScreen替换成为我们自己的屏幕，这里我把GuiMainMenu(主菜单)替换成了自己的屏幕。 现在进入游戏，之前显示的主界面也就替换成了刚刚写的GuiDemoScreen，目前还是一片空，什么都没有。 现在的屏幕还是有点单调，没有任何的控件或者说GUI，MC自带了一些GUI控件，可供使用。 常用控件与GuiScreen如何你继承了GuiScreen，并且需要在上面添加一些GUI控件的时候，就需要覆盖其中的 initGui，此方法会在进入和调整窗口大小时被调用: Button按钮，作为最常见的GUI，MC自己本身做了一个封装: net.minecraft.client.gui.GuiButton 从GuiButton类的构造中可以看出，我们需要最少指定按钮的id, x, y轴方向以及按钮文字。 下面放置一个按钮在刚刚的DemoScreen上: 这里是往buttonList中添加了一个按钮，那为什么要这么做呢？ GuiScreen类中的绘制方法为drawScreen，如果你需要绘制一些控件之外的东西，列如图片，就需要覆写这个方法，并且记住需要super调用父类GuiScreen的drawScreen，不然你在initGui中添加的button与label都不会被绘制: 这里是GuiScreen的drawScreen具体实现。 Label这里的Label用于绘制多行内容: 这里的fontRenderer是Minecraft类的成员，用于绘制文字。GuiLabel类内部维护了一个labels的列表，用于储存添加的文字，效果: TextField文本输入，如果你要做一个登陆的界面或者是与用户交换信息的控件，这个可能是最佳选择，但是GuiScreen没有所谓的 “textFieldList” 所以可以在initGui中去初始化，然后覆写drawScreen来绘制这个TextField: 这里创建了一个TextField，指定了必须的参数，设置最大输入长度为16，在覆写drawScreen后调用其中的drawTextBox去绘制这个输入框，并且你需要指定输入框被点击和输入的行为。 覆写mouseClicked并调用textField的mouseClicked传入相同参数，此方法在鼠标点击时调用，这样就做到点击时选择到这个输入框。 覆写keyTyped并调用其中的textboxKeyTyped传入相同参数，keyTyped在键盘输入时被触发，这样就可以让输入框可输入。 最后可通过其中的getText和getSelectedText获得你想要的数据: 项目代码: https://github.com/Mainyf/drawTutorial]]></content>
+      <categories>
+        <category>Java</category>
+      </categories>
+      <tags>
+        <tag>Java</tag>
+        <tag>opengl</tag>
+        <tag>minecraft</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[Snakeyaml 解析文件]]></title>
+    <url>%2F2018%2F11%2F17%2F1%2F</url>
+    <content type="text"><![CDATA[首先需要一个标准的JavaBean(无参构造, 每个成员需要有getter/setter方法)例: 12345678910111213141516171819202122232425262728public class User &#123; private String name; private int age; public User() &#123;&#125; public User(String name, int age) &#123; this.name = name; this.age = age; &#125; public String getName() &#123; return name; &#125; public void setName(String name) &#123; this.name = name; &#125; public int getAge() &#123; return age; &#125; public void setAge(int age) &#123; this.age = age; &#125;&#125; 然后需要在new Yaml的时候传入ClassLoader，例: 1Yaml yaml = new Yaml(new CustomClassLoaderConstructor(this.getClass().getClassLoader())); 此时可以调用loadAs把文件解析成JavaBean了。1User user = yaml.loadAs(reader|input|file, User.class); 是以前困惑着我的问题，现在终于解决。]]></content>
+      <categories>
+        <category>后端</category>
+      </categories>
+      <tags>
+        <tag>Java</tag>
+        <tag>后端</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[React + TypeScript 路径解析问题]]></title>
+    <url>%2F2018%2F11%2F11%2F1%2F</url>
+    <content type="text"><![CDATA[昨天遇到了一个问题，在做React+TypeScript的路径解析时，发现无法解析tsx文件。 查阅了许多资料都无果，今天因某位大佬提醒，我是意识到可能需要对tsconfig.json进行配置，在查阅相关资料后，终于解决。例: webpack.config.js:1'@src': path.resolve(__dirname, '..', '/src') tsconfig.json:123456789"compilerOptions": &#123; "baseUrl": ".", "allowJs": true, ... "paths": &#123; "@src/*": ["./src/*"] &#125;, ...&#125; index.tsx:1import App from '@src/App'; 运行: 折腾了许久，终于解决。]]></content>
+      <categories>
+        <category>前端</category>
+      </categories>
+      <tags>
+        <tag>前端</tag>
+        <tag>react</tag>
+        <tag>typescript</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[如何解决flexLayout的styles-d-ts问题]]></title>
+    <url>%2F2018%2F09%2F24%2F1%2F</url>
+    <content type="text"><![CDATA[编译错误信息: 123456ERROR in node_modules/@angular/flex-layout/extended/typings/style/style.d.ts(72,67): error TS1144: &apos;&#123;&apos; or &apos;;&apos; expected.node_modules/@angular/flex-layout/extended/typings/style/style.d.ts(74,5): error TS1128: Declaration or statement expected.node_modules/@angular/flex-layout/extended/typings/style/style.d.ts(74,33): error TS1005: &apos;;&apos; expected.node_modules/@angular/flex-layout/extended/typings/style/style.d.ts(74,39): error TS1109: Expression expected.node_modules/@angular/flex-layout/extended/typings/style/style.d.ts(79,5): error TS1128: Declaration or statement expected.node_modules/@angular/flex-layout/extended/typings/style/style.d.ts(80,1): error TS1128: Declaration or statement expected. 如何解决? 进入package.json文件 1.修改typescript版本 -&gt; 2.9.22.修改RxJS版本为 -&gt; 6.2.x]]></content>
+      <categories>
+        <category>前端</category>
+      </categories>
+      <tags>
+        <tag>前端</tag>
+        <tag>angular</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[在后端解决AJAX跨域问题(小记)]]></title>
+    <url>%2F2018%2F04%2F04%2F1%2F</url>
+    <content type="text"><![CDATA[在响应时设置如下的header： Access-Control-Allow-Origin, * Access-Control-Allow-Headers, Origin, No-Cache, X-Requested-With, If-Modified-Since, Pragma,nLast-Modified, Cache-Control, Expires, Content-Type, Content-Language, Cache-Control, X-E4M-With,X_FILENAME Access-Control-Allow-Methods, PUT,POST,GET,DELETE,OPTIONS 添加完即可]]></content>
+      <categories>
+        <category>后端</category>
+      </categories>
+      <tags>
+        <tag>HTML</tag>
+        <tag>后端</tag>
+        <tag>ajax</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[如何创建Simple React开发环境]]></title>
+    <url>%2F2018%2F03%2F15%2F1%2F</url>
+    <content type="text"><![CDATA[适用于webpack 4.x配置一个React的开发环境在我看来是比较麻烦的，需要比较多的配置。写一篇博文统计一下，让自己记住，也希望帮助到别人： webpack webpack-cli webpack-dev-server react react-dom babel-loader@next @babel/core @babel/preset-react style-loader css-loader 这里可能是必须的，在初始化(npm init -y)之后使用npm i -D {name}去安装他们，然后在webpack.config.js文件中写入以下内容： 12345678910111213141516171819202122232425262728293031323334var debug = process.env.NODE_ENV !== "production";const path = require('path')module.exports = &#123; devtool: debug ? "inline-sourcemap" : null, entry: './src/js/root.js', output: &#123; path: path.resolve(__dirname, 'dist'), filename: '[name].bundle.js' &#125;, module: &#123; rules: [&#123; test: /\.js$/, exclude: /(node_modules|bower_components)/, use: &#123; loader: 'babel-loader', options: &#123; presets: ['@babel/preset-react'] &#125; &#125; &#125;, &#123; test: /\.css$/, use: [&#123; loader: 'style-loader' &#125;, &#123; loader: 'css-loader' &#125; ] &#125; ] &#125;&#125; 输入1webpack-dev-server --mode development --output-public-path dist --inline --hot 来启动测试服务器，就可以进行调试了。 工具推荐Brackets 一个即时预览功能比较OK的文件编辑器 官网: http://brackets.io/ 第三方介绍： http://caibaojian.com/brackets-editor.html 插件推荐：http://caibaojian.com/bracket-plugins.html 优点：即时预览能力强，代码提示较好 缺点：插件少，界面UI单调。 Axure 网页设计简单化软件 官网：https://www.axure.com/ 汉化地址：http://www.iaxure.com/menupage/download.html 教程：https://www.axure.com.cn/category/axure/ 优点：设计简单，样式修改简单 缺点：生成的网页不可直接使用，只可用于预览效果（不绝对） Pinegrow 网页设计简单化软件 官网：https://pinegrow.com/ 优点：精致小巧，功能强大，样式与内容修改简单 缺点：小众，付费 Parcel 简单的webpack脚手架 官网：https://parceljs.org/ 优点：0配置，新手如果不想花费精力在烦人的配置上，可以使用 缺点：无配置，拓展难 Box Shadow 阴影效果在线调试 网站：http://tools.jb51.net/aideddesign/css3_boxshadow CSS to React -&gt; CSS样式转React样式 网站：https://staxmanade.com/CssToReact/ Browsersync -&gt; 网页即时预览工具 官网：http://www.browsersync.cn/ 更多如果你想要找到更多对你开发有帮助的东西的话，去这里 https://zhuanlan.zhihu.com/p/29388576]]></content>
+      <categories>
+        <category>前端</category>
+      </categories>
+      <tags>
+        <tag>前端</tag>
+        <tag>React</tag>
+        <tag>webpack</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[webpack4.1的开发环境搭建]]></title>
+    <url>%2F2018%2F03%2F12%2F1%2F</url>
+    <content type="text"><![CDATA[什么是Webpack什么是Webpack？官网有过一句话: webpack is a module bundler webpack就是一个模块打包器，在webpack中，所有文件都可以是一个模块，列如JS、CSS、图片等等，webpack中可以使用loader去处理他们。 第一步（安装node.js)webpack是基于node.js的，首先需要安装node.js。官网 =&gt; https://nodejs.org/en/ 下载LTS或者是Current版本都可以。 如果没有科学上网工具或者网络环境不佳的话，可以使用cnpm，这是淘宝用来解决npm的速度问题的一个项目：cnpm =&gt; https://npm.taobao.org/ 安装webpack首先创建一个文件夹，例如这里创建一个名字为HelloWebpack的文件夹：123mkdir HelloWebapckcd HelloWebpacknpm init -y 这里初始化了一个npm的包，-y表示在创建的时候提示的选项全部选择Yes。这样目录下就多了一个package.json的文件。 然后使用命令来安装webpack，首先全局安装webpack npm i -g webpack 此操作只需要一次就行了，然后在本地在此安装一次 npm i -D webpack 等待完成，就安装好了webpack，出现了WARN无需理会，出现ERROR才说明出现问题，如果网络状况不佳，可以使用cnpm，把文中的npm替换为cnpm。 安装完成之后，输入 webpack –version 这里我的版本是4.1 Example这里创建一个index.html文件作为显示效果的文件，并输入一些内容 12345678910&lt;!DOCTYPE html&gt;&lt;html lang="en"&gt;&lt;head&gt; &lt;meta charset="UTF-8"&gt; &lt;title&gt;Document&lt;/title&gt;&lt;/head&gt;&lt;body&gt; &lt;script src="./dist/main.js"&gt;&lt;/script&gt;&lt;/body&gt;&lt;/html&gt; 这里引入了同路径下的dist文件夹下的main.js文件，如果你不经过一些配置的话，这是webpack的默认输出路径和Name。这里需要注意，如果不进行任何配置的话，webpack会默认加载src文件夹下的文件，所以这里创建一个src文件夹，在创建一个index.js作为入口：1console.log('Hello webpack.') 执行webpack： 这里有个警告，目前无需理会，打开index.html看看效果： 可以看到已经出来效果了，但是这只是webpack的一个小应用，在实际开发中需要用到不少webpack的东西。 Webpack Configwebpack的复杂主要在配置文件，这可能是个比较头疼的问题，这里来看一些配置里面的定义： entry output loader plugins Entry and ouputentry，也就是入口，上文中有说到如果不经配置的话，webpack会默认加载项目下的src/index.js文件，可是你可以在配置文件中去定义入口，首先在根目录下创建一个webpack.config.js文件，这个文件就是webpack的配置文件了，写入以下内容来指定入口。123456789const path = require('path')module.exports = &#123; entry: './src/js/index.js', output: &#123; path: path.resolve(__dirname, 'dist'), filename: 'bundle.[name].js' &#125;&#125; 首先看到了module.exports这里是指定了这个js文件的外置接口，这样就可以让其他JS文件去引用了。这里的entry指定了入口文件为src/js/index.js，我也把index.js文件稍微变换一下位置。这里的output指定了出口，也就是在打包完成之后输出的目录和文件名，这里使用到了获得到了本目录的绝对路径再加上dist目录，在下面也设置了输出文件的文件名。 再次输入webpack打包： 在看看dist目录下： 可以看见已经成功了。 Loaderloader可以用作处理一些非JS的文件，或者对JS文件拓展，列如已经被广泛认知的ES6，下面来看看定义： 1234567891011121314151617const path = require('path')module.exports = &#123; entry: './src/js/index.js', output: &#123; path: path.resolve(__dirname, 'dist'), filename: 'bundle.[name].js' &#125;, module: &#123; rules: [ &#123; test: /\.txt$/, use: 'raw-loader' &#125; ] &#125;&#125; 这里使用了官网的例子 test表示选择一个文件类型 use表示对这种文件类型使用什么loader进行转换 Pluginsloader 被用于转换某些类型的模块，而插件则可以用于执行范围更广的任务。插件的范围包括，从打包优化和压缩，一直到重新定义环境中的变量。插件接口功能极其强大，可以用来处理各种各样的任务。 想要使用一个插件，你只需要 require() 它，然后把它添加到 plugins 数组中。多数插件可以通过选项(option)自定义。你也可以在一个配置文件中因为不同目的而多次使用同一个插件，这时需要通过使用 new 操作符来创建它的一个实例。 12345678910111213141516171819202122const HtmlWebpackPlugin = require('html-webpack-plugin'); // 通过 npm 安装const webpack = require('webpack'); // 用于访问内置插件const path = require('path');const config = &#123; entry: './path/to/my/entry/file.js', output: &#123; path: path.resolve(__dirname, 'dist'), filename: 'my-first-webpack.bundle.js' &#125;, module: &#123; rules: [ &#123; test: /\.txt$/, use: 'raw-loader' &#125; ] &#125;, plugins: [ new webpack.optimize.UglifyJsPlugin(), new HtmlWebpackPlugin(&#123;template: './src/index.html'&#125;) ]&#125;;module.exports = config; 可能有用的资源webpack中文官网https://doc.webpack-china.org webpack教程https://blog.zfanw.com/webpack-tutorial/ https://hulufei.gitbooks.io/react-tutorial/content/webpack.html http://gcidea.info/2016/12/16/webpack-demos/ webpack脚手架 http://www.css88.com/doc/parcel/ https://github.com/heyui/hey-cli/blob/master/README_zh.md]]></content>
+      <categories>
+        <category>前端</category>
+      </categories>
+      <tags>
+        <tag>前端</tag>
+        <tag>webpack</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[React-组件化开发之路(三)]]></title>
+    <url>%2F2018%2F03%2F07%2F1%2F</url>
+    <content type="text"><![CDATA[Component Styles你可以在render函数返回的HTML标签中添加style属性来增加组件的样式： 这里给h1标签添加一个字体大小样式，这里的样式注意不要写在render函数外面，在看看效果： 这样就为组件完成了样式设置，这里的样式按照小写驼峰式，和原生js设置样式没有区别。 Component State组件状态，组件可以根据用户的某些操作来改变状态，列如通过点击、hover之类的事件行为来进行操作： 这里增加了几个东西，getInitialState、handleClick，两个函数，从语义上来看大致可以清楚都是做什么的 getInitialState =&gt; 初始化State，React应该会获得此函数返回的对象来初始化state的值 handleClick =&gt; 处理点击事件 这里有写地方需要注意： render函数返回的标签不允许出现一个以上的顶级父标签，所以这里使用了一个div作为父标签 在其中绑定事件的时候需要小写驼峰式 这里应该很清楚了，给button标签绑定了一个事件，这个事件会设置state，如果设置的值已经存在就会覆盖，不存在则创建。这里做了自增操作，每次点击按钮都会让state中的count变量值+1，看看效果： Component PropsProps在上一节已经说了，和state相似，但是如果要设置值的话，只能在父组件中设置，这是一个组件嵌套的例子： 这里可以看出来，在Parent组件中嵌套了一个子组件，这里有个值，是props中的value变量，在render函数写入DOM的时候，指定了value的值。父组件把值也传递给了子组件，子组件得到值进行显示，如果该组件也嵌套了组件，那么同样传递，循环往复，看看效果： Component 生命周期常用的生命周期方法有： componentWillMount 在组件加载之前调用 componentDidMount 在组件加载之后调用 componentWillReceiveProps 组件中的Props更新之后被调用 shouldComponentUpdate 返回一个boolean值，组件中的props | state更新时调用 componentWillUpdate 组件中props|state更新时，但是还没有写入的时候调用 componentDidUpdate props|state更新写入之后被调用 componentWillUnmount 组件从DOM中移除的时候被调用 Chrome React 插件facebook有开发一款方便开发者调试React的Chrome插件，叫做React Developer Tools。Github： https://github.com/facebook/react-devtools React Component APIReact提供了一些函数用来去设置组件的信息，这些函数包括上面的setState。setState =&gt; 设置状态填入一个对象和一个函数(可选)，例：12345678setState(&#123; value: 1 //填入一个新的对象，值会和原来的state合并 //如果不存在则创建该值&#125;,function() &#123; console.log('setState execute success.'); //此函数在setStatee执行完成，已经写入组件之后调用&#125;); replaceState =&gt; 替换状态填入一个对象和一个函数(可选)，例：123456replaceState(&#123; value: 1 //填入一个新的对象，值会替换掉原来state的值&#125;,function() &#123; console.log('replaceState execute success.'); //此函数在replaceState执行完成，已经写入组件之后调用&#125;); setProps =&gt; 设置属性填入一个对象和一个函数(可选)，例：123456setProps(&#123; value: 1 //填入一个新的对象，值会和原来的props合并&#125;,function() &#123; console.log('setProps execute success.'); //此函数在setProps执行完成，已经写入组件之后调用&#125;); replaceProps =&gt; 替换属性填入一个对象和一个函数(可选)，例：123456replaceProps(&#123; value: 1 //填入一个新的对象，值会替换掉原来props的值&#125;,function() &#123; console.log('replaceProps execute success.'); //此函数在replaceProps执行完成，已经写入组件之后调用&#125;); forceUpdate =&gt; 强制更新组件填入一个函数(可选)，例：1234forceUpdate(function() &#123; console.log('forceUpdate execute success.'); //此函数在forceUpdate执行完成，已经写入组件之后调用&#125;); findDOMNode =&gt; 获得DOM节点例：12DOMElement findDOMNode()//如果组件已经加载到了DOM中，该方法就会返回解析过后的DOM元素 isMounted =&gt; 判断组件加载状态例：12bool isMounted()//返回true表示组件以及加载到了DOM中，false则反之]]></content>
+      <categories>
+        <category>前端</category>
+      </categories>
+      <tags>
+        <tag>前端</tag>
+        <tag>React</tag>
+        <tag>组件化</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[React-组件化开发之路(二)]]></title>
+    <url>%2F2018%2F03%2F06%2F1%2F</url>
+    <content type="text"><![CDATA[Component除了在ReactDOM.render中直接写HTML标签之外，还可以写成Component(组件)。列如： 在看看浏览器： 1ReactDOM.render(&lt;h1&gt;Hello World.&lt;/h1&gt;, document.querySelector('#root')) 123456var TestComponent = React.createClass(&#123; render () &#123; return (&lt;h1&gt;Hello world.&lt;/h1&gt;) &#125;&#125;)ReactDOM.render(&lt;TestComponent /&gt;, document.querySelector('#root')) 可以看出，这两种写法是等效的，这样就完成了一个组件的创建，这样比较清晰，也容易进行拓展。 Props可以在Component其中添加Props来达到一定程度的自定义，例： 这里在h1标签的内容中添加了this.props.name，这相当于一个变量，props我觉得可能是一个对象，“.name”差不多相当于在其中创建了一个变量。我们在组件中添加name属性，值为Mainyf，看看浏览器窗口： 同时，这样的变量还可以作用于标签属性中，比如class和id： 这里的className等效于class，因为class在js中是一个关键/保留字，如果需要设定class就需要写成className。让我们在来看看Developer Tools： 这里可以看出，class和id都已经成功加载。]]></content>
+      <categories>
+        <category>前端</category>
+      </categories>
+      <tags>
+        <tag>前端</tag>
+        <tag>React</tag>
+        <tag>组件化</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[React-组件化开发之路(一)]]></title>
+    <url>%2F2018%2F03%2F05%2F1%2F</url>
+    <content type="text"><![CDATA[&nbsp; &nbsp; 前端开发，编写结构混乱的HTML页面代码是比较难以维护的，可读性也很低，记得在刚开始去学前端的时候，去网上找一些模版看的时候都是比较难读的。&nbsp; &nbsp; 我学前端的时间也不长，也不了解前端以前据说很黑暗的历史，我学会使用了React，当然只是初步。&nbsp; &nbsp; 以前在某教程网上看过Vue的教程，连带了一起看了看React，当时看到的： 1ReactDOM.render(&lt;h1&gt;Hello World!&lt;/h1&gt;, document.querySelector('#example')); &nbsp; &nbsp; 大致是这样的一个代码，我在想可能就是个向指定元素添加子元素的js库。&nbsp; &nbsp; 后来经过一段时间的前端学习后，学会了使用Bootstrap快速搭建页面，写一个网页也只是用Bootstrap提供的类去拼凑一个页面，在经过一些修饰，就可以是一个看得过去的网页了。&nbsp; &nbsp; 然后我看到了React，之前经常有人说用React造组件(记不清了，不知道是不是)，我自己也有用CSS和JS去造过一些轮子，列如轮播图和一些小组件，也算是平时造着玩玩了。&nbsp; &nbsp; 看到React是在仿写一个网页模版的时候发现的，我正在写导航栏，凑效就看到了React，跟着教程把整个导航的nav写进了Component中，后来发觉这样的组件化开发模式可以让开发效率提高不少。 React基本操作&nbsp; &nbsp; 在上面也说过了，React就是向页面的某个元素中添加子节点，不过这个在这个子节点上React应该做了不少工作，把子节点变成了组件。 123&lt;script src="./lib/react.min.js"&gt;&lt;/script&gt;&lt;script src="./lib/react-dom.min.js"&gt;&lt;/script&gt;&lt;script src="./lib/browser.min.js"&gt;&lt;/script&gt; &nbsp; &nbsp; 我是在本地引入的这三个js库，当然也可以用cdn，网上一搜一大堆。 react.js =&gt; React核心库 react-dom.js =&gt; React对DOM操作的支持库 browser.js =&gt; ES6语法支持库 &nbsp; &nbsp; 在引入需要的库之后，就来看看一个简单的Demo： 12345678910111213141516171819&lt;!DOCTYPE html&gt;&lt;html lang="en"&gt;&lt;head&gt; &lt;meta charset="UTF-8"&gt; &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt; &lt;meta http-equiv="X-UA-Compatible" content="ie=edge"&gt; &lt;title&gt;Demo Component&lt;/title&gt; &lt;script src="./lib/react.min.js"&gt;&lt;/script&gt; &lt;script src="./lib/react-dom.min.js"&gt;&lt;/script&gt; &lt;script src="./lib/browser.min.js"&gt;&lt;/script&gt;&lt;/head&gt;&lt;body&gt;&lt;div id="example"&gt;&lt;/div&gt;&lt;!-- 类型一定要写成babel --&gt;&lt;script type="text/babel"&gt; ReactDOM.render(&lt;h1&gt;Hello World!&lt;/h1&gt;, document.querySelector('#example'));&lt;/script&gt;&lt;/body&gt;&lt;/html&gt; 来看看结果： 在看看Developer Tools里面的内容： script标签内的内容可以保存到*.jsx文件中，这个文件是React的自带的一个语法文件，你可以这样导入他1&lt;script src="./demo.jsx" type="text/babel"&gt;&lt;/script&gt; &nbsp; &nbsp; 这样去使用的话就不可以直接用浏览器打开html文件进行浏览，你需要搭建一个http服务器，这里我推荐使用Python自带的一个功能，可以快速搭建http服务器。去这里下载Python，然后cd到你需要开启服务器的目录下输入1python -m http.server 就可以快速搭建一个简单易用的http服务器。]]></content>
+      <categories>
+        <category>前端</category>
+      </categories>
+      <tags>
+        <tag>前端</tag>
+        <tag>React</tag>
+        <tag>组件化</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[CSS背景图片自适应]]></title>
+    <url>%2F2018%2F02%2F27%2F1%2F</url>
+    <content type="text"><![CDATA[这可能是个比较基本的问题，但是可能我记性不太好，还是记下来比较好。12345678.div &#123; overflow: hidden; position: fixed; width: 100%; height: 100%; background: url("image.png") no-repeat; background-size: cover;&#125; 给元素加上就可以让背景自适应了，放大，缩小，改变浏览器窗口大小都不会出现问题。]]></content>
+      <categories>
+        <category>前端</category>
+      </categories>
+      <tags>
+        <tag>前端</tag>
+        <tag>CSS</tag>
+        <tag>HTML</tag>
+      </tags>
+  </entry>
+</search>
