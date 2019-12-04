@@ -1,0 +1,32 @@
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>V</title>
+    <script type="text/javascript" src="/js/crypto-js.js"></script>
+
+</head>
+
+<body>
+
+<p id="demo"></p>
+<p id="demo2"></p>
+
+
+<script type="text/javascript">
+  var hash = CryptoJS.HmacSHA256("Message", "secret");
+  var hashInBase64 = CryptoJS.enc.Base64.stringify(hash);
+  document.getElementById("demo2").innerHTML = hashInBase64;
+</script>
+
+<script>
+var d = new Date();
+d.setHours(9);
+d.setMilliseconds(0);
+d.setMinutes(0);
+d.setSeconds(0);
+document.getElementById("demo").innerHTML = d.getTime();
+</script>
+
+</body>
+</html>
