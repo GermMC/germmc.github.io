@@ -1,7 +1,7 @@
 {
   "yggdrasilAPI": "http://skin.germmc.com:6591/api/yggdrasil",
   "germmcURL": "http://skin.germmc.com:6591",
-  "germmcRegisterURL": "DEFAULT",
+  "germmcRegisterURL": "http://skin.germmc.com:6591/auth/register",
   "germmcIP": "play.germmc.com",
   "germmcPORT": "6551",
   "germmcLauncher": "1.0"
