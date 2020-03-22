@@ -1,4 +1,4 @@
 {
-  "germmcUpdater": "1.0",
-  "germmcDownload": "https://mc-1258585685.cos.ap-chengdu.myqcloud.com/Germ/Updater1.0.jar?q-sign-algorithm=sha1&q-ak=AKID84mwrXQFH3dz82h9SWKvISN2SijUrNZY&q-sign-time=1584781873;1584789073&q-key-time=1584781873;1584789073&q-header-list=&q-url-param-list=&q-signature=9707e82effb28ef676c3e4e3fc2f1bd1183b623e"
+  "germmcUpdater": "1.1",
+  "germmcDownload": "https://mc-1258585685.cos.ap-chengdu.myqcloud.com/Germ/Updater.1.1.jar?q-sign-algorithm=sha1&q-ak=AKID84mwrXQFH3dz82h9SWKvISN2SijUrNZY&q-sign-time=1584863510;1584870710&q-key-time=1584863510;1584870710&q-header-list=&q-url-param-list=&q-signature=f782c2852764e48bfb57daab4454c50bcc54c57f"
 }
