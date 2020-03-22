@@ -1,5 +1,5 @@
 {
   "germmcLauncher": "1.0",
-  "germmcDownloadX64": "https://codeload.github.com/bs-community/blessing-skin-server/zip/dev",
-  "germmcDownloadX32": "https://codeload.github.com/bs-community/blessing-skin-server/zip/dev"
+  "germmcDownloadX64": "https://mc-1258585685.cos.ap-chengdu.myqcloud.com/Germ/Updater1.0.jar?q-sign-algorithm=sha1&q-ak=AKID84mwrXQFH3dz82h9SWKvISN2SijUrNZY&q-sign-time=1584860827;1584868027&q-key-time=1584860827;1584868027&q-header-list=&q-url-param-list=&q-signature=222e8ee231a99e803a02503c26e2b7e8dcca5303",
+  "germmcDownloadX32": "https://mc-1258585685.cos.ap-chengdu.myqcloud.com/Germ/Updater1.0.jar?q-sign-algorithm=sha1&q-ak=AKID84mwrXQFH3dz82h9SWKvISN2SijUrNZY&q-sign-time=1584860827;1584868027&q-key-time=1584860827;1584868027&q-header-list=&q-url-param-list=&q-signature=222e8ee231a99e803a02503c26e2b7e8dcca5303"
 }
