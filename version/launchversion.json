@@ -1,5 +1,5 @@
 {
   "germmcLauncher": "1.0",
-  "germmcDownloadX64": "https://mc-1258585685.cos.ap-chengdu.myqcloud.com/Germ/GermMC.exe?q-sign-algorithm=sha1&q-ak=AKID84mwrXQFH3dz82h9SWKvISN2SijUrNZY&q-sign-time=1584861235;1584868435&q-key-time=1584861235;1584868435&q-header-list=&q-url-param-list=&q-signature=1bc8ed9d139eff4b4eaf0480be19fba1d1044626",
-  "germmcDownloadX32": "https://mc-1258585685.cos.ap-chengdu.myqcloud.com/Germ/Updater1.0.jar?q-sign-algorithm=sha1&q-ak=AKID84mwrXQFH3dz82h9SWKvISN2SijUrNZY&q-sign-time=1584860827;1584868027&q-key-time=1584860827;1584868027&q-header-list=&q-url-param-list=&q-signature=222e8ee231a99e803a02503c26e2b7e8dcca5303"
+  "germmcDownloadX64": "https://mc-1258585685.cos.ap-chengdu.myqcloud.com/Germ/GermMCx64.exe?q-sign-algorithm=sha1&q-ak=AKID84mwrXQFH3dz82h9SWKvISN2SijUrNZY&q-sign-time=1584867699;1584874899&q-key-time=1584867699;1584874899&q-header-list=&q-url-param-list=&q-signature=9bea32ce218ea4d70ddf898af6da8448e5749af5",
+  "germmcDownloadX32": "https://mc-1258585685.cos.ap-chengdu.myqcloud.com/Germ/GermMCx32.exe?q-sign-algorithm=sha1&q-ak=AKID84mwrXQFH3dz82h9SWKvISN2SijUrNZY&q-sign-time=1584867720;1584874920&q-key-time=1584867720;1584874920&q-header-list=&q-url-param-list=&q-signature=77a20495ba103473289e5899c0d3d8e25e0ccff8"
 }
