@@ -1,4 +1,5 @@
 {
   "germmcLauncher": "1.0",
-  "germmcDownload": "https://codeload.github.com/bs-community/blessing-skin-server/zip/dev"
+  "germmcDownloadX64": "https://codeload.github.com/bs-community/blessing-skin-server/zip/dev",
+  "germmcDownloadX32": "https://codeload.github.com/bs-community/blessing-skin-server/zip/dev"
 }
