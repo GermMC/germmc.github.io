@@ -3,5 +3,12 @@
   "germmcURL": "http://skin.germmc.com:6591",
   "germmcRegisterURL": "http://skin.germmc.com:6591/auth/register",
   "germmcIP": "play.germmc.com",
-  "germmcPORT": "6551"
+  "germmcPORT": "6551",
+  "deleteFile": [".minecraft/saves",".minecraft/crash-reports"],
+  "downloadFile": {
+	"url": ["https://mc-1258585685.cos.ap-chengdu.myqcloud.com/Germ/Updater.1.1.jar",
+			"https://mc-1258585685.cos.ap-chengdu.myqcloud.com/Germ/Updater.1.1.jar"],
+	"path": [".minecraft/test.jar",
+			".minecraft/test2.jar"]
+  }
 }
